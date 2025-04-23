@@ -1,42 +1,116 @@
-<!DOCTYPE html>
-<html lang="ar">
+<!DOCTYPE html><html lang="ar">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تطبيق طلبات المطعم</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>إدارة الطلبات - بابا عبده</title>
+  <style>
+    body { margin:0; padding:0; font-family: Arial, sans-serif; direction: rtl; background: #f5f5f5; }
+    header { background: #ff6600; color: white; padding: 15px; text-align: center; font-size: 24px; }
+    .container { display: grid; grid-template-columns: 200px 1fr 300px; height: calc(100vh - 60px); }
+    .sidebar { background: #fff; padding: 10px; border-left: 1px solid #ddd; overflow-y: auto; }
+    .sidebar h3 { margin-top: 0; color: #ff6600; }
+    .sidebar ul { list-style: none; padding: 0; margin: 0; }
+    .sidebar li { padding: 8px; margin: 4px 0; cursor: pointer; border-radius: 5px; }
+    .sidebar li.active, .sidebar li:hover { background: #ff6600; color: white; }
+    .main { background: #fff; padding: 15px; overflow-y: auto; }
+    .items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+    .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; }
+    .card h4 { margin: 0 0 5px; font-size: 16px; }
+    .card .price { font-size: 14px; color: #555; }
+    .card button { margin-top: 10px; padding: 6px 0; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    .card button:hover { opacity: 0.9; }
+    .summary { background: #fff; padding: 15px; border-right: 1px solid #ddd; overflow-y: auto; }
+    .summary h3 { margin-top: 0; color: #ff6600; }
+    .order-list { list-style: none; padding: 0; margin: 0; }
+    .order-list li { background: #fafafa; padding: 10px; margin: 5px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .order-list .note { font-size: 12px; color: #888; margin-top: 4px; width: 100%; text-align: right; }
+    .order-list button { background: #dc3545; color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+    .order-footer { margin-top: 20px; font-weight: bold; text-align: right; }
+  </style>
 </head>
 <body>
+  <header>إدارة الطلبات - طاولة <span id="tableNum"></span></header>
   <div class="container">
-    <h1>تطبيق طلبات المطعم</h1><label for="num-tables">عدد الترابيزات:</label> <input type="number" id="num-tables" min="1" max="10" value="1"> <button onclick="createTables()">إنشاء الترابيزات</button>
-    <div id="tables"></div>
-    <div id="menu-popup" class="menu-popup">
-      <h2>القائمة</h2>
-      <div class="menu">
-        <div class="section">
-          <h3>المكرونة</h3><button onclick="chooseExtraOption('مكرونة صغير', 25)">مكرونة صغير - 25</button> <button onclick="chooseExtraOption('مكرونة وسط', 30)">مكرونة وسط - 30</button> <button onclick="chooseExtraOption('مكرونة كبير', 35)">مكرونة كبير - 35</button> <button onclick="chooseExtraOption('مكرونة كينج', 45)">مكرونة كينج - 45</button>
-        </div>
-        <div class="section">
-          <h3>الكشري</h3><button onclick="addOrderToActiveTable('كشري صغير', 25)">كشري صغير - 25</button> <button onclick="addOrderToActiveTable('كشري وسط', 30)">كشري وسط - 30</button> <button onclick="addOrderToActiveTable('كشري كبير', 35)">كشري كبير - 35</button> <button onclick="addOrderToActiveTable('كشري كينج', 45)">كشري كينج - 45</button>
-        </div>
-        <div class="section">
-          <h3>الطواجن</h3><button onclick="addOrderToActiveTable('طاجن فراخ', 45)">طاجن فراخ - 45</button> <button onclick="addOrderToActiveTable('طاجن لحمة', 45)">طاجن لحمة - 45</button>
-        </div>
-        <div class="section">
-          <h3>الإضافات والمشروبات</h3><button onclick="addOrderToActiveTable('كبدة', 20)">كبدة - 20</button> <button onclick="addOrderToActiveTable('سجق', 20)">سجق - 20</button> <button onclick="addOrderToActiveTable('مكس', 20)">مكس - 20</button> <button onclick="addOrderToActiveTable('صلصة', 10)">صلصة - 10</button> <button onclick="addOrderToActiveTable('تقلية', 10)">تقلية - 10</button> <button onclick="addOrderToActiveTable('عدس', 10)">عدس - 10</button> <button onclick="addOrderToActiveTable('مشروب غازي', 15)">مشروب غازي - 15</button> <button onclick="addOrderToActiveTable('أرز بلبن', 13)">أرز بلبن - 13</button> <button onclick="addOrderToActiveTable('مياه', 5)">مياه - 5</button>
-        </div>
-      </div><button onclick="closeMenu()">إغلاق</button>
-    </div>
-    <div id="extra-option-popup" class="menu-popup">
-      <h3>اختر إضافة:</h3><button onclick="selectPastaType('كبدة')">كبدة</button> <button onclick="selectPastaType('سجق')">سجق</button> <button onclick="selectPastaType('مكس')">مكس</button> <button onclick="selectPastaType('بدون')">بدون</button> <button onclick="closeExtraOptionPopup()">إلغاء</button>
-    </div>
-    <div id="pasta-type-popup" class="menu-popup">
-      <h3>اختر نوع المكرونة:</h3><button onclick="addPastaOrder('اسباجتي')">اسباجتي</button> <button onclick="addPastaOrder('مقصوصة')">مقصوصة</button> <button onclick="addPastaOrder('مشكل')">مشكل</button> <button onclick="closePastaTypePopup()">إلغاء</button>
-    </div>
-    <footer class="footer">
-      <p>التطبيق تحت إشراف: <span>محمد وليد سعد</span></p>
-    </footer>
-  </div>
-  <script src="script.js"></script>
-</body>
+    <aside class="sidebar">
+      <h3>☆ المفضلة</h3>
+      <ul id="favList"><!-- Filled dynamically --></ul>
+      <h3>الأقسام</h3>
+      <ul id="catList"></ul>
+    </aside>
+    <section class="main">
+      <div class="items-grid" id="itemsGrid"><!-- Items appear here --></div>
+    </section>
+    <aside class="summary">
+      <h3>ملخص الطلب</h3>
+      <ul class="order-list" id="orderList"></ul>
+      <div class="order-footer">الإجمالي: <span id="orderTotal">0</span> ج</div>
+    </aside>
+  </div>  <script>
+    const tableNum = localStorage.getItem('currentTable') || '?';
+    document.getElementById('tableNum').textContent = tableNum;
+    const menu = JSON.parse(localStorage.getItem('menu')) || [];
+    let orders = JSON.parse(localStorage.getItem(`orders_${tableNum}`)) || [];
+
+    const catList = document.getElementById('catList');
+    const itemsGrid = document.getElementById('itemsGrid');
+    const orderList = document.getElementById('orderList');
+    const orderTotal = document.getElementById('orderTotal');
+
+    let currentCat = 0;
+
+    function renderCategories() {
+      catList.innerHTML = '';
+      menu.forEach((cat, i) => {
+        let li = document.createElement('li');
+        li.textContent = cat.name;
+        li.className = i === currentCat ? 'active' : '';
+        li.onclick = () => { currentCat = i; renderCategories(); renderItems(); };
+        catList.appendChild(li);
+      });
+    }
+
+    function renderItems() {
+      itemsGrid.innerHTML = '';
+      (menu[currentCat]?.items || []).forEach((item, idx) => {
+        let card = document.createElement('div'); card.className = 'card';
+        card.innerHTML = `<h4>${item.name}</h4><div class="price">${item.price} ج</div>`;
+        let btn = document.createElement('button'); btn.textContent = '+';
+        btn.onclick = () => addOrder(item);
+        card.appendChild(btn);
+        itemsGrid.appendChild(card);
+      });
+    }
+
+    function addOrder(item) {
+      let note = prompt('إضافة ملاحظة (نوع/تعديل)') || '';
+      let exist = orders.find(o => o.name === item.name && o.note === note);
+      if (exist) exist.qty++; else orders.push({ name: item.name, price: item.price, qty:1, note });
+      saveOrders(); renderOrders();
+    }
+
+    function renderOrders() {
+      orderList.innerHTML = '';
+      let total = 0;
+      orders.forEach((o, i) => {
+        total += o.price * o.qty;
+        let li = document.createElement('li');
+        li.innerHTML = `<div><strong>${o.name} × ${o.qty}</strong> <button onclick="removeOne(${i})">–</button><div class="note">${o.note || ''}</div></div><span>${o.price * o.qty} ج</span>`;
+        orderList.appendChild(li);
+      });
+      orderTotal.textContent = total;
+    }
+
+    function removeOne(i) {
+      if (orders[i].qty>1) orders[i].qty--; else orders.splice(i,1);
+      saveOrders(); renderOrders();
+    }
+
+    function saveOrders() {
+      localStorage.setItem(`orders_${tableNum}`, JSON.stringify(orders));
+    }
+
+    window.onload = () => {
+      renderCategories(); renderItems(); renderOrders();
+    };
+  </script></body>
 </html>
